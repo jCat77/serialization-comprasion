@@ -1,0 +1,5 @@
+JMH S 25 com.jcat.test.BenchRunner S 69 com.jcat.test.generated.BenchRunner_testAvroAltImplementation_jmhTest S 25 testAvroAltImplementation S 10 Throughput I 1 5 A 1 1 1 E I 1 1 T 3 5 s E I 1 2 T 3 5 s E I 1 1 E E E E E E E E E 
+JMH S 25 com.jcat.test.BenchRunner S 70 com.jcat.test.generated.BenchRunner_testProtobufImplementation_jmhTest S 26 testProtobufImplementation S 10 Throughput I 1 5 A 1 1 1 E I 1 1 T 3 5 s E I 1 2 T 3 5 s E I 1 1 E E E E E E E E E 
+JMH S 25 com.jcat.test.BenchRunner S 69 com.jcat.test.generated.BenchRunner_testMsgpackImplementation_jmhTest S 25 testMsgpackImplementation S 10 Throughput I 1 5 A 1 1 1 E I 1 1 T 3 5 s E I 1 2 T 3 5 s E I 1 1 E E E E E E E E E 
+JMH S 25 com.jcat.test.BenchRunner S 68 com.jcat.test.generated.BenchRunner_testColferImplementation_jmhTest S 24 testColferImplementation S 10 Throughput I 1 5 A 1 1 1 E I 1 1 T 3 5 s E I 1 2 T 3 5 s E I 1 1 E E E E E E E E E 
+JMH S 25 com.jcat.test.BenchRunner S 66 com.jcat.test.generated.BenchRunner_testAvroImplementation_jmhTest S 22 testAvroImplementation S 10 Throughput I 1 5 A 1 1 1 E I 1 1 T 3 5 s E I 1 2 T 3 5 s E I 1 1 E E E E E E E E E 

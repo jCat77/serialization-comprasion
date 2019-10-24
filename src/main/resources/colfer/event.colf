@@ -1,0 +1,8 @@
+package colfer
+
+type event struct {
+	id             text
+	userId         text
+	payload        text
+	createDatetime int64
+}

@@ -1,0 +1,10 @@
+dontinline,*.*_all_jmhStub
+dontinline,*.*_avgt_jmhStub
+dontinline,*.*_sample_jmhStub
+dontinline,*.*_ss_jmhStub
+dontinline,*.*_thrpt_jmhStub
+inline,com/jcat/test/BenchRunner.testAvroAltImplementation
+inline,com/jcat/test/BenchRunner.testAvroImplementation
+inline,com/jcat/test/BenchRunner.testColferImplementation
+inline,com/jcat/test/BenchRunner.testMsgpackImplementation
+inline,com/jcat/test/BenchRunner.testProtobufImplementation
