@@ -7,19 +7,23 @@ import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.jcat.test.colfer.Event;
-//import com.jcat.test.protobuf.EventOuterClass;
+import com.jcat.test.protobuf.EventOuterClass;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.msgpack.MessagePack;
 import org.openjdk.jmh.Main;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.RunnerException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
+
+//import com.jcat.test.protobuf.EventOuterClass;
 
 public class BenchRunner {
 
@@ -47,11 +51,11 @@ public class BenchRunner {
         return kryo;
     });
 
-    public static void main(String[] args) throws IOException, RunnerException {
-//        Main.main(args);
+    public static void main(String[] args) throws IOException, RunnerException, ClassNotFoundException {
+        Main.main(args);
         final BenchRunner benchRunner = new BenchRunner();
 //        while (true) {
-            benchRunner.testKryoImplementation();
+//            benchRunner.testSerializableImplementation();
 //        }
     }
 
@@ -77,28 +81,28 @@ public class BenchRunner {
         BLAKCHOLE.accept(serialized);
     }
 
-//    @Benchmark
-//    //@Threads(5)
-//    @Warmup(iterations = 1, time = 5)
-//    @Measurement(iterations = 2, time = 5)
-//    @Fork(value = 1)
-//    public void testProtobufImplementation() throws InvalidProtocolBufferException {
-//
-//        final EventOuterClass.Event event = EventOuterClass.Event.newBuilder()
-//                .setId(EXAMPLE_ID)
-//                .setUserId(EXAMPLE_USER_ID)
-//                .setPayload(EXAMPLE_PAYLOAD)
-//                .setCreateTimestamp(System.currentTimeMillis())
-//                .build();
-//
-//        final byte[] bytes = event.toByteArray();
-//
-//        final EventOuterClass.Event event1 = EventOuterClass.Event.parseFrom(bytes);
-//
-//        BLAKCHOLE.accept(event1);
-//        BLAKCHOLE.accept(bytes);
-//
-//    }
+    @Benchmark
+    //@Threads(5)
+    @Warmup(iterations = 1, time = 5)
+    @Measurement(iterations = 2, time = 5)
+    @Fork(value = 1)
+    public void testProtobufImplementation() throws InvalidProtocolBufferException {
+
+        final EventOuterClass.Event event = EventOuterClass.Event.newBuilder()
+                .setId(EXAMPLE_ID)
+                .setUserId(EXAMPLE_USER_ID)
+                .setPayload(EXAMPLE_PAYLOAD)
+                .setCreateTimestamp(System.currentTimeMillis())
+                .build();
+
+        final byte[] bytes = event.toByteArray();
+
+        final EventOuterClass.Event event1 = EventOuterClass.Event.parseFrom(bytes);
+
+        BLAKCHOLE.accept(event1);
+        BLAKCHOLE.accept(bytes);
+
+    }
 
     @Benchmark
     //@Threads(5)
@@ -176,6 +180,32 @@ public class BenchRunner {
 
         Input input = new UnsafeInput(serialized);
         com.jcat.manual.Event event1 = kryo.get().readObject(input, com.jcat.manual.Event.class);
+
+        BLAKCHOLE.accept(event1);
+        BLAKCHOLE.accept(serialized);
+
+    }
+
+    @Benchmark
+    //@Threads(5)
+    @Warmup(iterations = 1, time = 5)
+    @Measurement(iterations = 2, time = 5)
+    @Fork(value = 1)
+    public void testSerializableImplementation() throws IOException, ClassNotFoundException {
+        final com.jcat.manual.Event event = new com.jcat.manual.Event(EXAMPLE_ID, EXAMPLE_USER_ID, EXAMPLE_PAYLOAD, System.currentTimeMillis());
+
+        final ByteArrayOutputStream byteArrayOutputStream = out.get();
+        byteArrayOutputStream.reset();
+
+        final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(event);
+        objectOutputStream.flush();
+
+        byte[] serialized = byteArrayOutputStream.toByteArray();
+        byteArrayOutputStream.reset();
+
+        final ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(serialized));
+        final Object event1 = objectInputStream.readObject();
 
         BLAKCHOLE.accept(event1);
         BLAKCHOLE.accept(serialized);

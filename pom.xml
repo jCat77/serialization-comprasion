@@ -117,24 +117,24 @@
                 </executions>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>org.xolstice.maven.plugins</groupId>-->
-<!--                <artifactId>protobuf-maven-plugin</artifactId>-->
-<!--                <version>0.6.1</version>-->
-<!--                <configuration>-->
-<!--                    <protoSourceRoot>${project.basedir}/src/main/resources/protobuf/</protoSourceRoot>-->
-<!--                    <protocExecutable>D:\Users\DAVSYUKOV\Downloads\protoc-3.8.0-win64\bin\protoc.exe</protocExecutable>-->
-<!--                    <outputDirectory>${project.basedir}/target/generated-sources/protobuf</outputDirectory>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>compile</goal>-->
-<!--                            &lt;!&ndash;                            <goal>test-compile</goal>&ndash;&gt;-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <configuration>
+                    <protoSourceRoot>${project.basedir}/src/main/resources/protobuf/</protoSourceRoot>
+                    <protocExecutable>D:\Users\DAVSYUKOV\Downloads\protoc-3.8.0-win64\bin\protoc.exe</protocExecutable>
+                    <outputDirectory>${project.basedir}/target/generated-sources/protobuf</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <!--                            <goal>test-compile</goal>-->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>net.quies.colfer</groupId>
