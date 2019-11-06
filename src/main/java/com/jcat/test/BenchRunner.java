@@ -7,16 +7,14 @@ import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.jcat.test.colfer.Event;
-import com.jcat.test.protobuf.EventOuterClass;
 import org.apache.avro.io.*;
+import org.apache.avro.reflect.ReflectDatumReader;
+import org.apache.avro.reflect.ReflectDatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.msgpack.MessagePack;
 import org.openjdk.jmh.Main;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.RunnerException;
 
 import java.io.*;
@@ -39,6 +37,9 @@ public class BenchRunner {
     private static final DatumWriter<com.jcat.test.avro.Event> userDatumWriter = new SpecificDatumWriter<>(com.jcat.test.avro.Event.class);
     private static final DatumReader<com.jcat.test.avro.Event> userDatumReader = new SpecificDatumReader<>(com.jcat.test.avro.Event.class);
 
+    private static final DatumWriter<com.jcat.manual.Event> userDatumWriterForManual = new ReflectDatumWriter<>(com.jcat.manual.Event.class);
+    private static final DatumReader<com.jcat.manual.Event> userDatumReaderForManual = new ReflectDatumReader<>(com.jcat.manual.Event.class);
+
     private static final ThreadLocal<MessagePack> messagePack = ThreadLocal.withInitial(() -> {
         final MessagePack messagePack = new MessagePack();
         messagePack.register(com.jcat.manual.Event.class);
@@ -51,16 +52,17 @@ public class BenchRunner {
         return kryo;
     });
 
-    public static void main(String[] args) throws IOException, RunnerException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, RunnerException {
         Main.main(args);
-        final BenchRunner benchRunner = new BenchRunner();
+
+//        final BenchRunner benchRunner = new BenchRunner();
 //        while (true) {
-//            benchRunner.testSerializableImplementation();
+//            benchRunner.testKryoImplementation();
 //        }
     }
 
     @Benchmark
-    //@Threads(5)
+    @Threads(5)
     @Warmup(iterations = 1, time = 5)
     @Measurement(iterations = 2, time = 5)
     @Fork(value = 1)
@@ -81,31 +83,31 @@ public class BenchRunner {
         BLAKCHOLE.accept(serialized);
     }
 
+//    @Benchmark
+//    @Threads(5)
+//    @Warmup(iterations = 1, time = 5)
+//    @Measurement(iterations = 2, time = 5)
+//    @Fork(value = 1)
+//    public void testProtobufImplementation() throws InvalidProtocolBufferException {
+//
+//        final EventOuterClass.Event event = EventOuterClass.Event.newBuilder()
+//                .setId(EXAMPLE_ID)
+//                .setUserId(EXAMPLE_USER_ID)
+//                .setPayload(EXAMPLE_PAYLOAD)
+//                .setCreateTimestamp(System.currentTimeMillis())
+//                .build();
+//
+//        final byte[] bytes = event.toByteArray();
+//
+//        final EventOuterClass.Event event1 = EventOuterClass.Event.parseFrom(bytes);
+//
+//        BLAKCHOLE.accept(event1);
+//        BLAKCHOLE.accept(bytes);
+//
+//    }
+
     @Benchmark
-    //@Threads(5)
-    @Warmup(iterations = 1, time = 5)
-    @Measurement(iterations = 2, time = 5)
-    @Fork(value = 1)
-    public void testProtobufImplementation() throws InvalidProtocolBufferException {
-
-        final EventOuterClass.Event event = EventOuterClass.Event.newBuilder()
-                .setId(EXAMPLE_ID)
-                .setUserId(EXAMPLE_USER_ID)
-                .setPayload(EXAMPLE_PAYLOAD)
-                .setCreateTimestamp(System.currentTimeMillis())
-                .build();
-
-        final byte[] bytes = event.toByteArray();
-
-        final EventOuterClass.Event event1 = EventOuterClass.Event.parseFrom(bytes);
-
-        BLAKCHOLE.accept(event1);
-        BLAKCHOLE.accept(bytes);
-
-    }
-
-    @Benchmark
-    //@Threads(5)
+    @Threads(5)
     @Warmup(iterations = 1, time = 5)
     @Measurement(iterations = 2, time = 5)
     @Fork(value = 1)
@@ -123,7 +125,7 @@ public class BenchRunner {
 
 
     @Benchmark
-    //@Threads(5)
+    @Threads(5)
     @Warmup(iterations = 1, time = 5)
     @Measurement(iterations = 2, time = 5)
     @Fork(value = 1)
@@ -146,7 +148,30 @@ public class BenchRunner {
     }
 
     @Benchmark
-    //@Threads(5)
+    @Threads(5)
+    @Warmup(iterations = 1, time = 5)
+    @Measurement(iterations = 2, time = 5)
+    @Fork(value = 1)
+    public void testAvroImplementationWithManualPojo() throws IOException {
+        final com.jcat.manual.Event event = new com.jcat.manual.Event(EXAMPLE_ID, EXAMPLE_USER_ID, EXAMPLE_PAYLOAD, System.currentTimeMillis());
+
+        final ByteArrayOutputStream byteArrayOutputStream = out.get();
+        byteArrayOutputStream.reset();
+
+        final BinaryEncoder binaryEncoder = EncoderFactory.get().binaryEncoder(byteArrayOutputStream, binaryEncoderForReuse.get());
+        userDatumWriterForManual.write(event, binaryEncoder);
+        binaryEncoder.flush();
+        final byte[] serialized = byteArrayOutputStream.toByteArray();
+
+        final com.jcat.manual.Event event1 = userDatumReaderForManual.read(null, DecoderFactory.get().binaryDecoder(serialized, binaryDecoderForReuse.get()));
+
+        BLAKCHOLE.accept(event1);
+        BLAKCHOLE.accept(serialized);
+
+    }
+
+    @Benchmark
+    @Threads(5)
     @Warmup(iterations = 1, time = 5)
     @Measurement(iterations = 2, time = 5)
     @Fork(value = 1)
@@ -163,7 +188,7 @@ public class BenchRunner {
     }
 
     @Benchmark
-    //@Threads(5)
+    @Threads(5)
     @Warmup(iterations = 1, time = 5)
     @Measurement(iterations = 2, time = 5)
     @Fork(value = 1)
@@ -187,7 +212,7 @@ public class BenchRunner {
     }
 
     @Benchmark
-    //@Threads(5)
+    @Threads(5)
     @Warmup(iterations = 1, time = 5)
     @Measurement(iterations = 2, time = 5)
     @Fork(value = 1)
